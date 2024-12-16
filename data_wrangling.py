@@ -11,12 +11,12 @@ print(unique_values)
 
 #create new dataframe called df_amr with the number of Antimicrobial Resistance Genes
 amr=df3['NUCCORE_ACC'].value_counts()
-df_amr=(pd.DataFrame({'NUCCORE_ACC':amr.index, 'AMR_COUNT':amr.values}))
+df_amr=(pd.DataFrame({'NUCCORE_ACC':amr.index, 'arg_count':amr.values}))
 
-#merge the dataframes on the 'NUCCORE_ACC' row, filling in 0 for AMR_COUNT if the accession does not have any Antimicrobial Resistance Genes
+#merge the dataframes on the 'NUCCORE_ACC' row, filling in 0 for ARG_COUNT if the accession does not have any Antimicrobial Resistance Genes
 merged_df1 = pd.merge(df1, df2, on='NUCCORE_ACC')
 merged_df2 = pd.merge(merged_df1,df_amr, on='NUCCORE_ACC',how='left')
-merged_df2['AMR_COUNT'] = merged_df2['AMR_COUNT'].fillna(0)
+merged_df2['arg_count'] = merged_df2['arg_count'].fillna(0)
 
 #filter out any accessions without 'observed_host_range_ncbi_rank'
 df_filtered = merged_df2[merged_df2['observed_host_range_ncbi_rank'].notnull()]
