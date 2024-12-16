@@ -20,7 +20,7 @@ data$size_quart <- factor(
 )
 
 #One way ANOVA
-mod=lm(amr_count ~ rank_f, data=data)
+mod=lm(arg_count ~ rank_f, data=data)
 summary(mod)
 Anova(mod)
 
@@ -31,23 +31,24 @@ pairs(means)
 
 
 #logistic regression
-mod.log=glm(range~amr_count+mobility_f_+size_quart,data=data, family=binomial)
+mod.log=glm(range~arg_count+mobility_f_+size_quart,data=data, family=binomial)
 summary(mod.log)
 
 
 #Figure 1
 data$observed_host_range_ncbi_rank_f <- factor(data$observed_host_range_ncbi_rank, 
                                                levels = c("genus", "family", "order", "class", "phylum", "multi-phylla"))
-data$log_amr_count <- log1p(data$amr_count)
-ggplot(data, aes(x = observed_host_range_ncbi_rank_f, y = log_amr_count)) +
+data$log_arg_count <- log1p(data$arg_count)
+ggplot(data, aes(x = observed_host_range_ncbi_rank_f, y = log_arg_count)) +
   geom_boxplot(fill = "lightblue", color = "black") + # Boxplot with custom colors
-  labs(x = "Host Range (NCBI Rank)", y = "Log-transformed AMR Count", title = "Box Plot of AMR Count by Host Range Rank") +
+  labs(x = "Host Range (NCBI Rank)", y = "Log-transformed Antimicrobial Resistant Gene Count", title = "Box Plot of ARG Count by Host Range Rank") +
   theme_minimal() + # Use a clean theme
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 #Figure 2
 coef_df <- tidy(mod.log, conf.int = TRUE)
+coef_df$term <- factor(coef_df$term, levels = c("size_quartFourth", "size_quartThird", "size_quartSecond", "mobility_f_non-mobilizable", "mobility_f_mobilizable", "arg_count", "(Intercept)"))
 coef_df$significance <- ifelse(coef_df$p.value < 0.05, "Significant", "Not Significant")
 ggplot(coef_df, aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high, color = significance)) +
   geom_point(size = 3) +
@@ -65,10 +66,10 @@ ggplot(coef_df, aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high, c
 
 # Supplemental Figure 1 - 
 probabilities <- predict(mod.log, type = "response")
-mydata <- data[, 'amr_count', drop=FALSE]
+mydata <- data[, 'arg_count', drop=FALSE]
 mydata$prob <- probabilities
 mydata$logodds <- log(probabilities/(1-probabilities))
-ggplot(mydata, aes(x=amr_count, y=logodds))+
+ggplot(mydata, aes(x=arg_count, y=logodds))+
   geom_point(size = 0.5, alpha = 0.5) +
   geom_smooth(method = "loess", se=FALSE) + 
   theme_bw() + 
